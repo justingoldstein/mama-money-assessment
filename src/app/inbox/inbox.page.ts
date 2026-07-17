@@ -1,5 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { HeaderComponent } from '@components/header/header.component';
 import { BrazeContentCard } from '@models/braze/braze-content-card';
 import { InboxService } from '@services/inbox.service';
@@ -11,7 +12,7 @@ import { close } from 'ionicons/icons';
   selector: 'app-inbox',
   template: `
     <ion-header mode="ios" class="ion-no-border">
-      <app-header title="Notifications" [showInboxButton]="true"></app-header>
+      <app-header title="Notifications" [showBackButton]="true" (backEvent)="navigateBack()"></app-header>
     </ion-header>
 
     <ion-content [fullscreen]="true" class="ion-padding">
@@ -50,7 +51,9 @@ import { close } from 'ionicons/icons';
   imports: [DatePipe, HeaderComponent, IonButton, IonCard, IonContent, IonHeader, IonIcon]
 })
 export class InboxPage implements OnInit {
-  constructor(readonly inbox: InboxService) {
+  private readonly deeplinkPrefix = 'za.co.mamamoney.assessments.frontend:';
+
+  constructor(readonly inbox: InboxService, private readonly router: Router) {
     addIcons({ close });
   }
 
@@ -58,10 +61,31 @@ export class InboxPage implements OnInit {
     this.inbox.refresh(() => this.inbox.markAllViewed());
   }
 
+  navigateBack(): void {
+    this.router.navigate(['/']);
+  }
+
   open(card: BrazeContentCard): void {
-    if (card.url) {
-      this.inbox.open(card);
+    if (!card.url) {
+      return;
     }
+
+    this.inbox.open(card);
+    const route = this.getDeeplinkRoute(card.url);
+    if (route) {
+      void this.router.navigateByUrl(route);
+    } else {
+      window.location.href = card.url;
+    }
+  }
+
+  private getDeeplinkRoute(url: string): string | undefined {
+    if (!url.startsWith(this.deeplinkPrefix)) {
+      return undefined;
+    }
+
+    const deeplink = new URL(url);
+    return `/${deeplink.hostname}${deeplink.pathname}`;
   }
 
   dismiss(event: Event, cardId: string): void {

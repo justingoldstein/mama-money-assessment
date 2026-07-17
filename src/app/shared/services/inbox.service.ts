@@ -12,6 +12,7 @@ export class InboxService {
 
   refresh(onComplete?: () => void): void {
     this.brazeService.getContentCardsFromServer((cards) => {
+      console.log('Braze content cards:', cards);
       this.contentCards.set(cards);
       onComplete?.();
     });
@@ -29,9 +30,6 @@ export class InboxService {
 
   open(card: BrazeContentCard): void {
     this.brazeService.logContentCardClicked(card.id);
-    if (card.url) {
-      window.location.href = card.url;
-    }
   }
 
   private isInboxCard(card: BrazeContentCard): boolean {
