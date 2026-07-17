@@ -1,14 +1,14 @@
-import { DatePipe } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { HeaderComponent } from '@components/header/header.component';
 import { BrazeContentCard } from '@models/braze/braze-content-card';
 import { InboxService } from '@services/inbox.service';
-import { IonButton, IonCard, IonContent, IonHeader, IonIcon } from '@ionic/angular/standalone';
+import { IonAlert, IonButton, IonCard, IonContent, IonHeader, IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { close } from 'ionicons/icons';
+import { closeCircleOutline } from 'ionicons/icons';
 
 @Component({
+
   selector: 'app-inbox',
   template: `
     <ion-header mode="ios" class="ion-no-border">
@@ -18,43 +18,64 @@ import { close } from 'ionicons/icons';
     <ion-content [fullscreen]="true" class="ion-padding">
       @for (card of inbox.cards(); track card.id) {
       <ion-card [button]="!!card.url" (click)="open(card)">
+
         <div class="card-content">
-          @if (card.image) {
-          <img [src]="card.image" alt="" />
-          }
-          <div>
-            @if (card.title) { <strong>{{ card.title }}</strong> }
-            @if (card.cardDescription) { <p>{{ card.cardDescription }}</p> }
-            <small>{{ createdDate(card) | date: 'mediumDate' }}</small>
+          
+          <div class="card-content-header">
+            @if (card.image) {
+            <img class="card-content-image" [src]="card.image" alt="" />
+            }
+            @if (card.title) { <strong class="card-content-title">{{ card.title }}</strong> }
+            @if (card.dismissible) {
+            <ion-button class="card-content-dismiss-btn" fill="clear" color="danger" aria-label="Dismiss notification" (click)="dismiss($event, card.id)">
+              <ion-icon name="close-circle-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+            }
+            
           </div>
+          @if (card.cardDescription) { <div class="card-content-description">{{ card.cardDescription }}</div> }
+            <div class="card-content-date">{{ createdDate(card) }}</div>
+
         </div>
-        @if (card.dismissible) {
-        <ion-button class="dismiss" fill="clear" aria-label="Dismiss notification" (click)="dismiss($event, card.id)">
-          <ion-icon name="close" slot="icon-only"></ion-icon>
-        </ion-button>
-        }
+        
       </ion-card>
-      } @empty {
-      <p>No notifications.</p>
+      } @empty {  
+      <p class="no-notifications">You're all caught up! No new notifications.</p>
       }
     </ion-content>
+
+    <ion-alert
+      class="dismissal-alert"
+      [isOpen]="dismissCardId() !== undefined"
+      header="Delete Message"
+      message="Are you sure you would like to delete this message?"
+      [buttons]="dismissButtons"
+      (didDismiss)="dismissCardId.set(undefined)"
+    ></ion-alert>
   `,
-  styles: [`
-    ion-card { margin: 0 0 1rem; position: relative; }
-    .card-content { display: flex; gap: .75rem; padding: 1rem 3rem 1rem 1rem; }
-    img { width: 32px; height: 32px; object-fit: cover; flex: 0 0 32px; }
-    p { margin: .25rem 0; }
-    small { color: var(--ion-color-medium); }
-    .dismiss { position: absolute; top: .25rem; right: .25rem; margin: 0; }
-  `],
+
+
   standalone: true,
-  imports: [DatePipe, HeaderComponent, IonButton, IonCard, IonContent, IonHeader, IonIcon]
+  imports: [HeaderComponent, IonAlert, IonButton, IonCard, IonContent, IonHeader, IonIcon]
 })
 export class InboxPage implements OnInit {
   private readonly deeplinkPrefix = 'za.co.mamamoney.assessments.frontend:';
+  readonly dismissCardId = signal<string | undefined>(undefined);
+  readonly dismissButtons = [
+    { text: 'No', role: 'cancel' },
+    {
+      text: 'Yes',
+      handler: () => {
+        const cardId = this.dismissCardId();
+        if (cardId) {
+          this.inbox.dismiss(cardId);
+        }
+      }
+    }
+  ];
 
   constructor(readonly inbox: InboxService, private readonly router: Router) {
-    addIcons({ close });
+    addIcons({ closeCircleOutline });
   }
 
   ngOnInit(): void {
@@ -90,10 +111,13 @@ export class InboxPage implements OnInit {
 
   dismiss(event: Event, cardId: string): void {
     event.stopPropagation();
-    this.inbox.dismiss(cardId);
+    this.dismissCardId.set(cardId);
   }
 
-  createdDate(card: BrazeContentCard): Date {
-    return new Date(card.created * 1000);
+  createdDate(card: BrazeContentCard): string {
+    const date = new Date(card.created * 1000);
+    const pad = (value: number) => value.toString().padStart(2, '0');
+
+    return `${pad(date.getDate())}.${pad(date.getMonth() + 1)}.${date.getFullYear()} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
   }
 }

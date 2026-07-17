@@ -3,3 +3,49 @@
     color: var(--ion-text-color) !important;
   }
 }
+
+
+.dismissal-alert {
+  .alert-wrapper {
+    border-radius: 14px;
+  }
+
+  .alert-head {
+    font-size: 17px;
+    font-weight: 600;
+    text-align: center;
+  }
+
+  .alert-message {
+    font-size: 15px;
+    text-align: center;
+  }
+
+  .alert-button-group {
+    justify-content: space-evenly;
+    border-top: 1px solid #ccc;
+    padding: 0;
+      }
+
+  .alert-button {
+    color: #1C98F3;
+    font-size: 1.2rem;
+    text-transform: none;
+    padding:18px 0;
+    width:50%;
+    margin:0;
+
+    &-inner{
+      justify-content: center;
+    }
+
+    &-role-destructive {
+      font-weight: 800;
+    }
+
+    &-role-cancel {
+      font-weight: 400;
+      border-right: 1px solid #ccc;
+    }
+  }
+}

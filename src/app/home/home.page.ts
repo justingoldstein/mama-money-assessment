@@ -17,7 +17,7 @@ import { IonHeader, IonContent, IonButton } from '@ionic/angular/standalone';
         <p class="m-b-2">
           Braze will send a push notification back to inform the client that there is a new content card available.
         </p>
-        <p><strong>Note:</strong> Push notifications may take awhile to arrive</p>
+        <p><strong>Note:</strong> Push notifications may take a while to arrive</p>
       </app-mm-card>
 
       <ion-button (click)="sendInboxTestEvent()" color="primary" expand="block" size="large" fill="solid" class="m-t-4">
