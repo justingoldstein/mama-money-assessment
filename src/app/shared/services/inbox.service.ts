@@ -5,7 +5,13 @@ import { BrazeService } from '@services/braze.service';
 @Injectable({ providedIn: 'root' })
 export class InboxService {
   private readonly contentCards = signal<BrazeContentCard[]>([]);
-  readonly cards = computed(() => this.contentCards().filter((card) => this.isInboxCard(card) && !card.dismissed));
+  private readonly dismissedCardIds = signal<Set<string>>(new Set());
+  readonly cards = computed(() => {
+    const dismissedCardIds = this.dismissedCardIds();
+    return this.contentCards().filter(
+      (card) => this.isInboxCard(card) && !card.dismissed && !dismissedCardIds.has(card.id)
+    );
+  });
   readonly hasUnreadCards = computed(() => this.cards().some((card) => !card.viewed));
 
   constructor(private readonly brazeService: BrazeService) {}
@@ -25,6 +31,7 @@ export class InboxService {
 
   dismiss(cardId: string): void {
     this.brazeService.logContentCardDismissed(cardId);
+    this.dismissedCardIds.update((cardIds) => new Set(cardIds).add(cardId));
     this.contentCards.update((cards) => cards.map((card) => (card.id === cardId ? { ...card, dismissed: true } : card)));
   }
 
