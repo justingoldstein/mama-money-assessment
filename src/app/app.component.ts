@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
 import { PushNotificationService } from '@services/push-notification.service';
+import { InboxService } from '@services/inbox.service';
 
 @Component({
   selector: 'app-root',
@@ -9,7 +10,8 @@ import { PushNotificationService } from '@services/push-notification.service';
   imports: [IonApp, IonRouterOutlet]
 })
 export class AppComponent {
-  constructor(private pushNotificationService: PushNotificationService) {
+  constructor(private pushNotificationService: PushNotificationService, private inboxService: InboxService) {
     this.pushNotificationService.init();
+    this.inboxService.refresh();
   }
 }

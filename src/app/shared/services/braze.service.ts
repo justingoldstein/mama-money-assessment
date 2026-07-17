@@ -1,11 +1,15 @@
 import { Injectable } from '@angular/core';
+import { BrazeContentCard } from '@models/braze/braze-content-card';
 
-type BrazeSuccessCallback = () => void;
+type BrazeSuccessCallback = (cards: BrazeContentCard[]) => void;
 type BrazeErrorCallback = (error: unknown) => void;
 
 interface BrazePluginApi {
   logCustomEvent(eventName: string): void;
   getContentCardsFromServer(successCallback?: BrazeSuccessCallback, errorCallback?: BrazeErrorCallback): void;
+  logContentCardClicked(cardId: string): void;
+  logContentCardImpression(cardId: string): void;
+  logContentCardDismissed(cardId: string): void;
 }
 
 type BrazeWindow = Window & {
@@ -28,4 +32,15 @@ export class BrazeService {
     this.plugin?.getContentCardsFromServer(successCallback, errorCallback);
   }
 
+  logContentCardClicked(cardId: string): void {
+    this.plugin?.logContentCardClicked(cardId);
+  }
+
+  logContentCardImpression(cardId: string): void {
+    this.plugin?.logContentCardImpression(cardId);
+  }
+
+  logContentCardDismissed(cardId: string): void {
+    this.plugin?.logContentCardDismissed(cardId);
+  }
 }
