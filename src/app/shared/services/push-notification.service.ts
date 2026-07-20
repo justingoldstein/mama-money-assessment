@@ -17,6 +17,7 @@ export class PushNotificationService {
     PushNotifications.addListener(
       'pushNotificationReceived',
       (notification: PushNotificationSchema | BrazePushNotification) => {
+        console.log("RECEIVED");
         this.inboxService.refresh();
       }
     );

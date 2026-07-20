@@ -14,7 +14,7 @@
     "//4": "Utility Scripts",
     "//5": "───────────────────────────────────────",
     "sync:android": "ionic cap sync android && node config/build-scripts/firebase.mjs android && node config/build-scripts/gradle.mjs && npm run android-messaging-service && npm run generate-resources",
-    "clean:install": "rm -rf node_modules www android && npm i",
+    "clean:install": "npx rimraf node_modules www android && npm i",
     "//6": "───────────────────────────────────────",
     "//7": "Internal scripts - do not use directly",
     "//8": "───────────────────────────────────────",
