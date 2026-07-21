@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, input } from '@angular/core';
+import { AfterViewInit, Component, effect, input } from '@angular/core';
 import { Router } from '@angular/router';
 import { InboxService } from '@services/inbox.service';
 import { IonButton, IonIcon, IonAccordion } from '@ionic/angular/standalone';
@@ -10,7 +10,7 @@ import anime, { AnimeInstance } from 'animejs';
   selector: 'app-inbox-button',
   template: `
     <div class="notification-button">
-      @if (inbox.hasUnreadCards()) {
+      @if (inbox.hasUnreadMessages()) {
       <svg class="notification-button-unread" height="10" width="10" xmlns="http://www.w3.org/2000/svg">
         <circle r="4.5" cx="5" cy="5" fill="red" />
       </svg>
@@ -48,16 +48,18 @@ export class InboxButtonComponent implements AfterViewInit {
 
   constructor(readonly inbox: InboxService, private readonly router: Router) {
     addIcons({ notificationsOutline });
+    effect(() => {
+      if (this.inbox.animateIcon()) {
+        this.shakeAnimation?.restart();
+        console.log("ANIMATION!");
+        this.inbox.animateIcon.set(false);
+      }
+    }, { allowSignalWrites: true });
   }
 
   showInbox(): void {
     void this.router.navigateByUrl('/inbox');
   }
-
-  // TODO: When receiving/reading new Braze inbox message, update notification state.
-  // Icon should play the shake animation when new unread messages are received.
-  //   this.unreadMessages = true;
-  //   this.shakeAnimation?.restart();
 
   ngAfterViewInit(): void {
     this.shakeAnimation = anime({

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import { BrazeParsedExtra, BrazePushNotification } from '@models/braze/braze-push-notification';
 import { PushNotifications, PushNotificationSchema } from '@capacitor/push-notifications';
 import { InboxService } from '@services/inbox.service';
@@ -7,7 +7,7 @@ import { InboxService } from '@services/inbox.service';
   providedIn: 'root'
 })
 export class PushNotificationService {
-  constructor(private readonly inboxService: InboxService) { }
+  constructor(private readonly inboxService: InboxService, private readonly ngZone: NgZone) { }
 
   init(): void {
     PushNotifications.addListener('registration', (token) => {
@@ -20,7 +20,9 @@ export class PushNotificationService {
         console.log('Push notification received:', notification);
 
         if (this.isInboxNotification(notification)) {
-          this.inboxService.refresh();
+          this.ngZone.run(() => {
+            this.inboxService.refresh(() => this.inboxService.animateIcon.set(true));
+          });
         }
       }
     );

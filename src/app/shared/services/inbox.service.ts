@@ -6,13 +6,14 @@ import { BrazeService } from '@services/braze.service';
 export class InboxService {
   private readonly contentCards = signal<BrazeContentCard[]>([]);
   private readonly dismissedCardIds = signal<Set<string>>(new Set());
+  readonly animateIcon = signal(false);
   readonly cards = computed(() => {
     const dismissedCardIds = this.dismissedCardIds();
     return this.contentCards().filter(
       (card) => this.isInboxCard(card) && !card.dismissed && !dismissedCardIds.has(card.id)
     );
   });
-  readonly hasUnreadCards = computed(() => this.cards().some((card) => !card.viewed));
+  readonly hasUnreadMessages = computed(() => this.cards().some((card) => !card.viewed));
 
   constructor(private readonly brazeService: BrazeService) {}
 
