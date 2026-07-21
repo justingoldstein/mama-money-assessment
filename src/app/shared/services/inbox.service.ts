@@ -7,6 +7,7 @@ export class InboxService {
   private readonly contentCards = signal<BrazeContentCard[]>([]);
   private readonly dismissedCardIds = signal<Set<string>>(new Set());
   readonly animateIcon = signal(false);
+  readonly newNotification = signal(false);
   readonly cards = computed(() => {
     const dismissedCardIds = this.dismissedCardIds();
     return this.contentCards().filter(

@@ -10,7 +10,7 @@ import anime, { AnimeInstance } from 'animejs';
   selector: 'app-inbox-button',
   template: `
     <div class="notification-button">
-      @if (inbox.hasUnreadMessages()) {
+      @if (inbox.hasUnreadMessages() || inbox.newNotification()) {
       <svg class="notification-button-unread" height="10" width="10" xmlns="http://www.w3.org/2000/svg">
         <circle r="4.5" cx="5" cy="5" fill="red" />
       </svg>
@@ -51,13 +51,13 @@ export class InboxButtonComponent implements AfterViewInit {
     effect(() => {
       if (this.inbox.animateIcon()) {
         this.shakeAnimation?.restart();
-        console.log("ANIMATION!");
         this.inbox.animateIcon.set(false);
       }
     }, { allowSignalWrites: true });
   }
 
   showInbox(): void {
+    this.inbox.newNotification.set(false);
     void this.router.navigateByUrl('/inbox');
   }
 
