@@ -1,5 +1,6 @@
 import { DOMParser, XMLSerializer } from '@xmldom/xmldom';
 import fs from 'fs/promises';
+import { fileURLToPath } from 'url';
 
 function addToApplication(dom, xml) {
   const applicationNode = dom.getElementsByTagName('application')[0];
@@ -15,6 +16,15 @@ async function addFcmService(manifestPath) {
   const serializer = new XMLSerializer();
   let dom = parser.parseFromString(manifestContent, 'application/xml');
 
+  const existingServices = Array.from(dom.getElementsByTagName('service'));
+  const hasMessagingService = existingServices.some(
+    (service) => service.getAttribute('android:name') === 'za.co.mamamoney.assessments.frontend.MmFirebaseMessagingService'
+  );
+
+  if (hasMessagingService) {
+    return;
+  }
+
   dom = addToApplication(
     dom,
     `<service xmlns:android="http://schemas.android.com/apk/res/android" android:name="za.co.mamamoney.assessments.frontend.MmFirebaseMessagingService" android:exported="false">
@@ -29,7 +39,7 @@ async function addFcmService(manifestPath) {
 }
 
 // Execute if run directly
-if (process.argv[1] === new URL(import.meta.url).pathname) {
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const manifestPath = process.argv[2] || './android/app/src/main/AndroidManifest.xml';
   addFcmService(manifestPath).catch(console.error);
 }
