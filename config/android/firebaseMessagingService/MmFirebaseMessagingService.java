@@ -4,7 +4,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
-import com.capacitorjs.plugins.pushnotifications.MessagingService;
+import com.capacitorjs.plugins.pushnotifications.PushNotificationsPlugin;
 import com.braze.push.BrazeFirebaseMessagingService;
 
 public class MmFirebaseMessagingService extends FirebaseMessagingService {
@@ -22,16 +22,28 @@ public class MmFirebaseMessagingService extends FirebaseMessagingService {
         }
 
         if (AppStatusHelper.isAppInForeground(this)) {
-            // Always use MessagingService when the app is in the foreground
-            MessagingService messagingService = new MessagingService();
-            messagingService.onMessageReceived(remoteMessage);
-        } else {
-
             if (BrazeFirebaseMessagingService.handleBrazeRemoteMessage(this, remoteMessage)) {
-                // This Remote Message originated from Braze and a push notification was
-                // displayed. No further action is needed.
-                Log.d(TAG, "Braze message handled.");
+                Log.d(TAG, "Braze foreground message handled.");
             }
+
+            PushNotificationsPlugin.sendRemoteMessage(remoteMessage);
+            return;
         }
+
+        if (BrazeFirebaseMessagingService.handleBrazeRemoteMessage(this, remoteMessage)) {
+            // This Remote Message originated from Braze and a push notification was
+            // displayed. No further action is needed.
+            Log.d(TAG, "Braze message handled.");
+            return;
+        }
+
+        PushNotificationsPlugin.sendRemoteMessage(remoteMessage);
+    }
+
+    @Override
+    public void onNewToken(@NonNull String token) {
+        super.onNewToken(token);
+        Log.d(TAG, "New token received.");
+        PushNotificationsPlugin.onNewToken(token);
     }
 }

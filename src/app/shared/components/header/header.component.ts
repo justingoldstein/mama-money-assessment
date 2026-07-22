@@ -12,7 +12,7 @@ import { arrowBack } from 'ionicons/icons';
       <ion-icon color="dark" name="arrow-back" slot="icon-only"></ion-icon>
     </ion-button>
     }
-    <ion-title> {{ title() }} </ion-title>
+    <ion-title class="page-title"> {{ title() }} </ion-title>
     @if (showInboxButton()) {
     <app-inbox-button slot="end"></app-inbox-button>
     }
@@ -25,6 +25,12 @@ import { arrowBack } from 'ionicons/icons';
 
       ion-button {
         font-size: 1.5rem;
+      }
+
+      .page-title{
+        font-size:24px;
+        color:#222741;
+        font-weight:700;
       }
     `
   ],

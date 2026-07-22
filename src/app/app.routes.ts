@@ -8,5 +8,9 @@ export const routes: Routes = [
   {
     path: 'complete',
     loadComponent: () => import('./complete/complete.page').then( m => m.CompletePage)
+  },
+  {
+    path: 'inbox',
+    loadComponent: () => import('./inbox/inbox.page').then((m) => m.InboxPage)
   }
 ];

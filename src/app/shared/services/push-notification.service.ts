@@ -1,26 +1,30 @@
 import { Injectable } from '@angular/core';
-import { BrazePushNotification } from '@models/braze/braze-push-notification';
+import { BrazeParsedExtra, BrazePushNotification } from '@models/braze/braze-push-notification';
 import { PushNotifications, PushNotificationSchema } from '@capacitor/push-notifications';
+import { InboxService } from '@services/inbox.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PushNotificationService {
-  constructor() {}
+  constructor(private readonly inboxService: InboxService) { }
 
-  init() {
+  init(): void {
     PushNotifications.addListener('registration', (token) => {
-      console.log('~ PushNotificationService ~ token:', token);
     });
 
     PushNotifications.addListener(
       'pushNotificationReceived',
       (notification: PushNotificationSchema | BrazePushNotification) => {
-        // TODO: Implement content card checking functionality when receiving Braze push notification with type === 'inbox' in "Extra's"
+        if (this.isInboxNotification(notification)) {
+            this.inboxService.newNotification.set(true);
+            this.inboxService.animateIcon.set(true);
+            this.inboxService.refresh();
+        }
       }
     );
 
-    this.registerPush();
+    void this.registerPush();
   }
 
   async registerPush(): Promise<void> {
@@ -33,6 +37,28 @@ export class PushNotificationService {
     if (pushReq.receive) {
       // Ask iOS user for permission/auto grant android permission
       await PushNotifications.register();
+    }
+  }
+
+  private isInboxNotification(notification: PushNotificationSchema | BrazePushNotification): boolean {
+    const { data } = notification;
+    if (!data) {
+      return false;
+    }
+
+    if ('type' in data && data.type === 'inbox') {
+      return true;
+    }
+
+    const extra = 'extra' in data ? data.extra : undefined;
+    if (typeof extra !== 'string') {
+      return false;
+    }
+
+    try {
+      return (JSON.parse(extra) as BrazeParsedExtra).type === 'inbox';
+    } catch {
+      return false;
     }
   }
 }
