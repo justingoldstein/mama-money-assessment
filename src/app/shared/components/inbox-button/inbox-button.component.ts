@@ -58,7 +58,7 @@ export class InboxButtonComponent implements AfterViewInit {
 
   showInbox(): void {
     this.inbox.newNotification.set(false);
-    void this.router.navigateByUrl('/inbox');
+    void this.router.navigate(['inbox']);
   }
 
   ngAfterViewInit(): void {

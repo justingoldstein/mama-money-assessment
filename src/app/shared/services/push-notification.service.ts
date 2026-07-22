@@ -11,14 +11,11 @@ export class PushNotificationService {
 
   init(): void {
     PushNotifications.addListener('registration', (token) => {
-      console.log('~ PushNotificationService ~ token:', token);
     });
 
     PushNotifications.addListener(
       'pushNotificationReceived',
       (notification: PushNotificationSchema | BrazePushNotification) => {
-        console.log('Push notification received:', notification);
-
         if (this.isInboxNotification(notification)) {
             this.inboxService.newNotification.set(true);
             this.inboxService.animateIcon.set(true);

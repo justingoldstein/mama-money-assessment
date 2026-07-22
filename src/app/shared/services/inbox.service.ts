@@ -20,7 +20,6 @@ export class InboxService {
 
   refresh(onComplete?: () => void): void {
     this.brazeService.getContentCardsFromServer((cards) => {
-      console.log('Braze content cards:', cards);
       this.contentCards.set(cards);
       onComplete?.();
     });
